@@ -14,7 +14,8 @@ import { PostResolver } from './resolvers/post';
 const main = async () => {
   const orm = await MikroORM.init(mikroConfig);
 
-  // to creat a migration manually, npx micro-orm migration:create
+  // to creat a migration, npx micro-orm migration:create (yarn create:migration)
+  // the below line executes all the created migations
   await orm.getMigrator().up();
 
   const app = express();
