@@ -4,12 +4,11 @@ import { Field, Int, ObjectType } from 'type-graphql';
 @ObjectType()
 @Entity()
 export class Post {
-
   @Field(() => Int)
   @PrimaryKey()
   id!: number;
 
-  @Field(() => String)
+  @Field()
   @Property({ type: 'date' })
   createdAt: Date = new Date();
 
@@ -17,11 +16,10 @@ export class Post {
   @Property({ onUpdate: () => new Date(), type: 'date' })
   updatedAt: Date = new Date();
 
-  @Field()
+  @Field(() => String)
   @Property({ type: 'text' })
   title!: string;
 }
-
 
 /**
  * the graphql resolver requires the 'type' of Post. So, if we let the enity be like:
@@ -45,4 +43,4 @@ export class Post {
     }
  * 
  * 
- *  */ 
+ *  */
