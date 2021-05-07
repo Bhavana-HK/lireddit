@@ -1,6 +1,6 @@
 import { Post } from '../entities/Post';
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
-import { MyContext } from 'src/types';
+import { MyContext } from '../types';
 
 // resolvers have functions, which can be mutations or queries
 // mutations are for inserting and updating data
