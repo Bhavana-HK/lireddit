@@ -4,6 +4,8 @@ import React from 'react';
 import { InputField } from 'src/components/InputField';
 import { Wrapper } from 'src/components/Wrapper';
 import { useRegisterMutation } from 'src/generated/graphql';
+import { toErrorMap } from 'src/utils/toErrorMap';
+import { useRouter } from 'next/router'
 
 /**
  * 1. create the mutation in the graphql playground.
@@ -16,13 +18,19 @@ import { useRegisterMutation } from 'src/generated/graphql';
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
+    const router = useRouter();
   const [, register] = useRegisterMutation();
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ username: '', password: '' }}
-        onSubmit={(values) => {
-          return register(values);
+        onSubmit={async (values, actions) => {
+          const response = await register(values);
+          if(response.data?.register.errors){
+            actions.setErrors(toErrorMap(response.data.register.errors));
+          } else if(response.data?.register.user){
+              router.push('/')
+          }
         }}
       >
         {(props) => (
