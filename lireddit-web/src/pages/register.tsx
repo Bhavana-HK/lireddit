@@ -3,26 +3,20 @@ import { Form, Formik } from 'formik';
 import React from 'react';
 import { InputField } from 'src/components/InputField';
 import { Wrapper } from 'src/components/Wrapper';
-import { useMutation } from 'urql';
+import { useRegisterMutation } from 'src/generated/graphql';
 
-const REGISTER_MUT = `mutation Register($username: String!, $password: String!){
-    register(options: { username: $username, password: $password }) {
-      errors {
-        field
-        message
-      }
-      user {
-        id
-        username
-      }
-    }
-  }
-  `;
+/**
+ * 1. create the mutation in the graphql playground.
+ * 2. paste it in src/graphql/mutations
+ * 3. run yarn gen to generate the types (generated/graphql.tsx)
+ * 4. this will also create a hook (useRegisterMutation)
+ * 5. now the requests and resoponses are typesafe
+ */
 
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
-  const [, register] = useMutation(REGISTER_MUT);
+  const [, register] = useRegisterMutation();
   return (
     <Wrapper variant="small">
       <Formik
