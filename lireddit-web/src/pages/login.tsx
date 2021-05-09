@@ -1,12 +1,12 @@
 import { Box, Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import React from 'react';
-import { InputField } from 'src/components/InputField';
-import { Wrapper } from 'src/components/Wrapper';
-import { useRegisterMutation } from 'src/generated/graphql';
-import { toErrorMap } from 'src/utils/toErrorMap';
+import { InputField } from '../components/InputField';
+import { Wrapper } from '../components/Wrapper';
+import { useLoginMutation } from '../generated/graphql';
+import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
-
+import * as yup from 'yup';
 /**
  * 1. create the mutation in the graphql playground.
  * 2. paste it in src/graphql/mutations
@@ -15,20 +15,26 @@ import { useRouter } from 'next/router';
  * 5. now the requests and resoponses are typesafe
  */
 
-interface registerProps {}
+const schema = yup.object({
+  username: yup.string().nullable().required(),
+  password: yup.string().nullable().required(),
+});
 
-const Register: React.FC<registerProps> = ({}) => {
+interface LoginProps {}
+
+const Login: React.FC<LoginProps> = ({}) => {
   const router = useRouter();
-  const [, register] = useRegisterMutation();
+  const [, login] = useLoginMutation();
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ username: '', password: '' }}
+        validationSchema={schema}
         onSubmit={async (values, actions) => {
-          const response = await register({options: values});
-          if (response.data?.register.errors) {
-            actions.setErrors(toErrorMap(response.data.register.errors));
-          } else if (response.data?.register.user) {
+          const response = await login({options: values});
+          if (response.data?.login.errors) {
+            actions.setErrors(toErrorMap(response.data.login.errors));
+          } else if (response.data?.login.user) {
             router.push('/');
           }
         }}
@@ -54,7 +60,7 @@ const Register: React.FC<registerProps> = ({}) => {
               isLoading={props.isSubmitting}
               type="submit"
             >
-              Submit
+              Log In
             </Button>
           </Form>
         )}
@@ -63,4 +69,4 @@ const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default Register;
+export default Login;
