@@ -6,7 +6,7 @@ import { useMeQuery } from '../generated/graphql';
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
-  const [{ data, fetching }] = useMeQuery();
+  const [{ data }] = useMeQuery();
   let body = null;
   if (!data?.me) {
     body = (
