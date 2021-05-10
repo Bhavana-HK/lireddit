@@ -1,12 +1,21 @@
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from 'next/link';
-import { useMeQuery } from '../generated/graphql';
+import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import { useRouter } from 'next/router';
 
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
   const [{ data }] = useMeQuery();
+  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const response = await logout();
+    if (response.data?.logout) router.push('/');
+  };
+
   let body = null;
   if (!data?.me) {
     body = (
@@ -24,16 +33,22 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   } else if (data.me) {
     body = (
       <Flex>
-        <Box color="white" mr={2}>{data.me.username}</Box>
-        <Button variant={'link'}>logout</Button>
+        <Box color="white" mr={2}>
+          {data.me.username}
+        </Box>
+        <Button
+          variant={'link'}
+          onClick={handleLogout}
+          isLoading={logoutFetching}
+        >
+          logout
+        </Button>
       </Flex>
     );
   }
   return (
     <Flex p={4} bgColor="teal">
-      <Box ml={'auto'}>
-        {body}
-      </Box>
+      <Box ml={'auto'}>{body}</Box>
     </Flex>
   );
 };

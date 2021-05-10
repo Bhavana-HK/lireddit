@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { MikroORM } from '@mikro-orm/core';
-import { __prod__ } from './constants';
+import { COOKIE_NAME, __prod__ } from './constants';
 import mikroConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
@@ -10,7 +10,6 @@ import { PostResolver } from './resolvers/post';
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
-import { MyContext } from './types';
 import cors from 'cors';
 
 /**
@@ -24,27 +23,27 @@ import cors from 'cors';
  * the authentication. To do that we use express-session. The user's data is stored in the server
  * and every time a request is made, the cookie is verified with the session stored.
  * This has to be extremely fast -- any database can be used for the storage, here we're using redis
- * 
+ *
  * 1.  sess:3745435er -> { userId: 2 }
  * redis stores data as key-value pairs. so a key "sess:3745435er" will have a value { userId: 2 }
- * 
+ *
  * 2. req.session.userId = 2
  * when we do this, the session key and value is stored in redis
  * the express-session will set a cookie on my browser qocnns3uhwul32323oqwkw9quj3
  * cookie is the session key is encrypted with the secret provided
- * 
+ *
  * 3. qocnns3uhwul32323oqwkw9quj3 -> sent to server
  * when user makes a request
- * 
+ *
  * 4. qocnns3uhwul32323oqwkw9quj3 -> sess:3745435er
  * decrypt the cookie
- * 
+ *
  * 5. sess:3745435er -> { userId: 2 }
  * make request to redis and grab the user id
- * 
+ *
  * 6. req.session = { userId: 2 }
  * the server now stores the info in session
- * 
+ *
  * Redis installation:
  * download zip: https://github.com/microsoftarchive/redis/releases/tag/win-3.0.504
  * extract to anywhere (C:\Program Files\Redis)
@@ -63,14 +62,14 @@ const main = async () => {
     await orm.getMigrator().up();
 
     const app = express();
-    app.use(cors({origin:'http://localhost:3000', credentials:true}))
+    app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
     const RedisStore = connectRedis(session);
     const redisClient = redis.createClient();
 
     app.use(
         session({
-            name: 'qid',
+            name: COOKIE_NAME,
             store: new RedisStore({
                 client: redisClient,
                 disableTouch: true,
@@ -97,7 +96,7 @@ const main = async () => {
             resolvers: [UserResolver, PostResolver],
             validate: false,
         }),
-        context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+        context: ({ req, res }) => ({ em: orm.em, req, res }),
     });
 
     apolloServer.applyMiddleware({ app, cors: false });

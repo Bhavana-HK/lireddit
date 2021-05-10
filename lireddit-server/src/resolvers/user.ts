@@ -11,6 +11,7 @@ import {
     Resolver,
 } from 'type-graphql';
 import * as argon2 from 'argon2';
+import { COOKIE_NAME } from '../constants';
 
 //resolvers have functions, which can be mutations or queries
 
@@ -62,22 +63,22 @@ export class UserResolver {
         @Arg('options') options: UsernamePasswordInput,
         @Ctx() { em, req }: MyContext
     ): Promise<UserResponse> {
-        if (options.username.length <= 2) {
+        if (options.username.length < 2) {
             return {
                 errors: [
                     {
                         field: 'username',
-                        message: 'Username is too short',
+                        message: 'length must be atleast 2',
                     },
                 ],
             };
         }
-        if (options.password.length <= 3) {
+        if (options.password.length < 2) {
             return {
                 errors: [
                     {
                         field: 'password',
-                        message: 'length must be atleast 4',
+                        message: 'length must be atleast 2',
                     },
                 ],
             };
@@ -134,7 +135,7 @@ export class UserResolver {
                 errors: [
                     {
                         field: 'username',
-                        message: "This username does't exist",
+                        message: "This user does't exist",
                     },
                 ],
             };
@@ -148,5 +149,20 @@ export class UserResolver {
         req.session.userId = user.id;
 
         return { user };
+    }
+
+    // logout user
+    @Mutation(() => Boolean)
+    logout(@Ctx() { req, res }: MyContext): Promise<boolean> {
+        return new Promise((resolve) => {
+            // removes the session in redis
+            req.session.destroy((err) => {
+                // removes the cookie on client side
+                res.clearCookie(COOKIE_NAME);
+
+                if (err) return resolve(false);
+                return resolve(true);
+            });
+        });
     }
 }
