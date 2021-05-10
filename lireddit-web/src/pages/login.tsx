@@ -7,6 +7,8 @@ import { useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
 import * as yup from 'yup';
+import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../utils/createUrqlClient';
 /**
  * 1. create the mutation in the graphql playground.
  * 2. paste it in src/graphql/mutations
@@ -69,4 +71,5 @@ const Login: React.FC<LoginProps> = ({}) => {
   );
 };
 
-export default Login;
+// no server side rendering for this page
+export default withUrqlClient(createUrqlClient)(Login);

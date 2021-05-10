@@ -1,28 +1,19 @@
-import { cacheExchange, Cache, QueryInput } from '@urql/exchange-graphcache';
-import { createClient, dedupExchange, fetchExchange } from 'urql';
+import { cacheExchange } from '@urql/exchange-graphcache';
+import { SSRExchange } from 'next-urql';
+import { dedupExchange, fetchExchange } from 'urql';
 import {
   LoginMutation,
+  LogoutMutation,
   MeDocument,
   MeQuery,
-  RegisterMutation,
-} from './generated/graphql';
+  RegisterMutation
+} from '../generated/graphql';
+import { betterUpdateQuery } from './betterUpdateQuery';
 
-function betterUpdateQuery<Result, Query>(
-  cache: Cache,
-  queryInput: QueryInput,
-  result: any,
-  fn: (r: Result, q: Query) => Query
-) {
-  return cache.updateQuery(
-    queryInput,
-    (data) => fn(result, data as any) as any
-  );
-}
-
-export const client = createClient({
+export const createUrqlClient = (ssrExchange: SSRExchange, _ctx: any) => ({
   url: 'http://localhost:4000/graphql',
   fetchOptions: {
-    credentials: 'include',
+    credentials: 'include' as const,
   },
   /**
    * after loging in, the 'me' query runs, but takes the response from cache.
@@ -71,9 +62,27 @@ export const client = createClient({
               }
             );
           },
+
+          logout: (_result, args, cache, info) => {
+            console.log(_result, args, cache, info);
+            betterUpdateQuery<LogoutMutation, MeQuery>(
+              cache,
+              { query: MeDocument },
+              _result,
+              (result, query) => {
+                if (!result.logout) {
+                  return query;
+                }
+                return {
+                  me: null,
+                };
+              }
+            );
+          },
         },
       },
     }),
+    ssrExchange,
     fetchExchange,
   ],
 });

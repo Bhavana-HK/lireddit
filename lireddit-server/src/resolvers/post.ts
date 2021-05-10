@@ -4,7 +4,6 @@ import { MyContext } from '../types';
 
 // resolvers have functions, which can be mutations or queries
 // mutations are for inserting and updating data
-
 @Resolver()
 export class PostResolver {
     // Fetch all posts

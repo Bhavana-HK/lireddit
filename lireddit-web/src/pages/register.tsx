@@ -1,11 +1,13 @@
 import { Box, Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import React from 'react';
-import { InputField } from 'src/components/InputField';
-import { Wrapper } from 'src/components/Wrapper';
-import { useRegisterMutation } from 'src/generated/graphql';
-import { toErrorMap } from 'src/utils/toErrorMap';
+import { InputField } from '../components/InputField';
+import { Wrapper } from '../components/Wrapper';
+import { useRegisterMutation } from '../generated/graphql';
+import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
+import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../utils/createUrqlClient';
 
 /**
  * 1. create the mutation in the graphql playground.
@@ -63,4 +65,5 @@ const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default Register;
+// no server side rendering for this page
+export default withUrqlClient(createUrqlClient)(Register);
