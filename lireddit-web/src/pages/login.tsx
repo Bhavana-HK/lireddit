@@ -18,7 +18,7 @@ import { createUrqlClient } from '../utils/createUrqlClient';
  */
 
 const schema = yup.object({
-  username: yup.string().nullable().required(),
+  usernameOrEmail: yup.string().nullable().required(),
   password: yup.string().nullable().required(),
 });
 
@@ -30,10 +30,10 @@ const Login: React.FC<LoginProps> = ({}) => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ usernameOrEmail: '', password: '' }}
         validationSchema={schema}
         onSubmit={async (values, actions) => {
-          const response = await login({options: values});
+          const response = await login(values);
           if (response.data?.login.errors) {
             actions.setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
@@ -44,8 +44,8 @@ const Login: React.FC<LoginProps> = ({}) => {
         {(props) => (
           <Form>
             <InputField
-              label={'Username'}
-              name={'username'}
+              label={'Username Or Email'}
+              name={'usernameOrEmail'}
               placeholder={'username'}
             />
             <Box mt={4}>
